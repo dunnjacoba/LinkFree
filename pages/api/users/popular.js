@@ -7,12 +7,11 @@ import Profile from "../../../models/Profile";
 export default async function handler(req, res) {
   await connectMongo();
 
-  // TODO: get top 10 popular profiles
-  const getProfiles = await Profile.find({});
+  const getProfiles = await Profile.find({}).sort({ views: -1 }).limit(10);
 
   // check for db results
   if (getProfiles.length === 0) {
-    return res.status(404).json({ Error: "No popular profiles found" });
+    return res.status(404).json([]);
   }
 
   const directoryPath = path.join(process.cwd(), "data");
@@ -33,7 +32,7 @@ export default async function handler(req, res) {
       };
     }
 
-    return user;
+    return { ...user, username: profile.username };
   });
 
   res.status(200).json(profiles);
